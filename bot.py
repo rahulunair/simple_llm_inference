@@ -8,6 +8,15 @@ import warnings
 
 # Suppress warnings for a cleaner output
 warnings.filterwarnings("ignore")
+warnings.filterwarnings(
+    "ignore",
+    category=UserWarning,
+    message="The tokenizer class you load from this checkpoint.*",
+)
+warnings.filterwarnings(
+    "ignore", category=UserWarning, message="You are using the legacy behaviour.*"
+)
+
 
 import torch
 import intel_extension_for_pytorch as ipex
@@ -15,6 +24,8 @@ import intel_extension_for_pytorch as ipex
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers import LlamaTokenizer, LlamaForCausalLM
 from transformers import BertTokenizer, BertForSequenceClassification
+
+from utils.device_utils import select_device
 
 # random seed
 if torch.xpu.is_available():
@@ -50,8 +61,13 @@ class ChatBotModel:
         - optimize: If True, ipex is used to optimized the model
         """
         self.torch_dtype = torch_dtype
-        self.device = "xpu:4" if torch.xpu.is_available() else "cpu"
-        if self.device.startswith("xpu"):
+        # self.device = "xpu:4" if torch.xpu.is_available() else "cpu"
+        self.device = select_device("xpu")
+        if (
+            self.device == self.device.startswith("xpu")
+            if isinstance(self.device, str)
+            else self.device.type == "xpu"
+        ):
             self.autocast = torch.xpu.amp.autocast
         else:
             self.autocast = torch.cpu.amp.autocast
@@ -149,11 +165,12 @@ class ChatBotModel:
         """
         Warms up the model by generating a sample response.
         """
-        sample_prompt = """A dialog, where User interacts with a helpful Bot.
-        AI is helpful, kind, obedient, honest, and knows its own limits.
-        User: Hello, Bot.
-        Bot: Hello! How can I assist you today?
-        """
+        sample_prompt = """A dialog,"""
+        #where User interacts with a helpful Bot.
+        #AI is helpful, kind, obedient, honest, and knows its own limits.
+        #User: Hello, Bot.
+        #Bot: Hello! How can I assist you today?
+        #"""
         input_ids = self.tokenizer(sample_prompt, return_tensors="pt").input_ids.to(
             device=self.device
         )
@@ -209,7 +226,7 @@ class ChatBotModel:
                 return generated_text[response_start:end_of_response].strip()
             else:
                 return generated_text[response_start:].strip()
-        return re.sub(r'^[^a-zA-Z0-9]+', '', generated_text)
+        return re.sub(r"^[^a-zA-Z0-9]+", "", generated_text)
 
     def interact(
         self,
@@ -263,10 +280,10 @@ class ChatBotModel:
 
 
 def main():
-    temperature = 0.10
+    temperature = 0.90  # 0.1
     top_p = 0.95
     top_k = 40
-    num_beams = 3
+    num_beams = 4
     repetition_penalty = 1.80
     models = [
         "Writer/camel-5b-hf",
