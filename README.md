@@ -28,7 +28,7 @@ git clone https://github.com/rahulunair/simple_llm_inference.git
 
 ```bash
 python -m pip install torch==2.0.1a0 torchvision==0.15.2a0 intel_extension_for_pytorch==2.0.110+xpu -f https://developer.intel.com/ipex-whl-stable-xpu
-python -m pip install transformers accelerate
+python -m pip install transformers accelerate sentencepiece
 ```
 
 To know more about IPEX on Intel GPUs use the following [guide](https://github.com/intel/intel-extension-for-pytorch#installation).
