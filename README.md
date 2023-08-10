@@ -21,7 +21,7 @@ LLM Inference example is a Python script designed to demonstrate interactive tex
 1. Clone the repository
 
 ```bash
-git clone https://github.com/rahulunair/simple_llm_inference.git
+git clone https://github.com/rahulunair/simple_llm_inference.git && cd simple_llm_inference
 ```
 
 2. Install dependencies:
