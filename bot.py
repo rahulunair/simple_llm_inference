@@ -132,8 +132,9 @@ class ChatBotModel:
             with torch.no_grad():
                 output = self.model.generate(
                     input_ids,
+                    do_sample=False,
                     pad_token_id=self.tokenizer.eos_token_id,
-                    max_length=self.max_length,
+                    max_new_tokens=self.max_length,
                     temperature=temperature,
                     top_p=top_p,
                     top_k=top_k,
@@ -213,10 +214,10 @@ class ChatBotModel:
     def interact(
         self,
         with_context: bool = True,
-        temperature: float = 0.10,
+        temperature: float = 0.90,
         top_p: float = 0.95,
         top_k: int = 40,
-        num_beams: int = 3,
+        num_beams: int = 4,
         repetition_penalty: float = 1.80,
     ) -> None:
         """
